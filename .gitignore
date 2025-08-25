@@ -32,6 +32,3 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
-
-# Ignore initialize_env directory and its contents
-/.initialize_env/

@@ -29,8 +29,8 @@ services:
     image: postgres:latest
     volumes:
       - postgresql_cache:/var/lib/postgresql/data
-      - .initialize_env/.pg_custom_config/pg_hba.conf:/etc/postgresql/pg_hba.conf
-      - .initialize_env/.pg_custom_config/postgresql.conf:/etc/postgresql/postgresql.conf
+      - db/.pg_custom_config/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - db/.pg_custom_config/postgresql.conf:/etc/postgresql/postgresql.conf
     environment:
       POSTGRES_PASSWORD: TPaga.2025.*
       POSTGRES_USER: postgres
