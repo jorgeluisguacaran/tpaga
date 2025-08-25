@@ -1,0 +1,44 @@
+services:
+  tpaga_app:
+    build:
+      network: host
+      target: development
+      tags:
+        - tpaga:0.1
+    container_name: tpaga_app
+    # image: debian:latest
+    tty: true
+    stdin_open: true
+    environment:
+      RAILS_ENV: development
+      DATABASE_HOST: tpaga_db
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: TPaga.2025.*
+      DATABASE_NAME: tpaga_development
+    volumes:
+      - .:/var/www
+      - bundle_cache:/bundle
+    ports:
+      - 5000:3000
+    depends_on:
+      - tpaga_db
+
+  tpaga_db:
+    container_name: tpaga_db
+    image: postgres:latest
+    volumes:
+      - .initialize_env/.pg_custom_config/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - .initialize_env/.pg_custom_config/postgresql.conf:/etc/postgresql/postgresql.conf
+      - postgresql_cache:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: TPaga.2025.*
+      POSTGRES_USER: postgres
+      POSTGRES_DB: tpaga_development
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    command: >
+      postgres -c config_file=/etc/postgresql/postgresql.conf
+               -c hba_file=/etc/postgresql/pg_hba.conf
+
+volumes:
+  bundle_cache:
+  postgresql_cache:
