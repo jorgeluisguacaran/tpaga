@@ -19,8 +19,7 @@
 #     nombre: "Banco de Prueba",
 #     direccion: "Calle 123",
 #     latitud: 4.7110,
-#     longitud: -74.0721,
-#     evaluacion: 4.5
+#     longitud: -74.0721
 #   })
 class BancoService
   attr_reader :errors
@@ -46,7 +45,6 @@ class BancoService
   # @option params [String] :direccion Dirección del banco
   # @option params [Float] :latitud Latitud del banco
   # @option params [Float] :longitud Longitud del banco
-  # @option params [Float] :evaluacion Evaluación del banco (opcional)
   # @return [Hash] Resultado de la operación
   # @option return [Boolean] :success true si se creó exitosamente
   # @option return [Banco] :banco Banco creado (solo si success es true)
@@ -58,8 +56,7 @@ class BancoService
   #     nombre: "Banco de Bogotá",
   #     direccion: "Calle 72 # 10-07, Bogotá",
   #     latitud: 4.7110,
-  #     longitud: -74.0721,
-  #     evaluacion: 4.5
+  #     longitud: -74.0721
   #   })
   #   if resultado[:success]
   #     puts "Banco creado: #{resultado[:banco].nombre}"
@@ -162,41 +159,22 @@ class BancoService
 
   # Genera estadísticas de los bancos en la base de datos
   #
-  # Calcula métricas como el total de bancos, promedio de evaluación,
-  # cantidad de bancos con alta evaluación y porcentajes.
+  # Calcula métricas básicas sobre los bancos almacenados.
   #
   # @return [Hash] Estadísticas de los bancos
   # @option return [Integer] :total_bancos Número total de bancos
-  # @option return [Float] :promedio_evaluacion Promedio de evaluaciones
-  # @option return [Integer] :bancos_alta_evaluacion Bancos con evaluación >= 4.0
-  # @option return [Float] :porcentaje_alta_evaluacion Porcentaje de bancos con alta evaluación
   #
   # @example Obtener estadísticas
   #   service = BancoService.new
   #   stats = service.estadisticas
   #   puts "Total de bancos: #{stats[:total_bancos]}"
-  #   puts "Promedio de evaluación: #{stats[:promedio_evaluacion]}"
-  #   puts "Bancos con alta evaluación: #{stats[:bancos_alta_evaluacion]}"
-  #   puts "Porcentaje alta evaluación: #{stats[:porcentaje_alta_evaluacion]}%"
   def estadisticas
     # Calcular métricas básicas
     total_bancos = Banco.count
-    promedio_evaluacion = Banco.average(:evaluacion)&.round(2) || 0.0
-    bancos_alta_evaluacion = Banco.con_evaluacion_minima(4.0).count
-
-    # Calcular porcentaje de bancos con alta evaluación
-    porcentaje_alta_evaluacion = if total_bancos > 0
-      ((bancos_alta_evaluacion.to_f / total_bancos) * 100).round(2)
-    else
-      0.0
-    end
 
     # Retornar hash con todas las estadísticas
     {
-      total_bancos: total_bancos,
-      promedio_evaluacion: promedio_evaluacion,
-      bancos_alta_evaluacion: bancos_alta_evaluacion,
-      porcentaje_alta_evaluacion: porcentaje_alta_evaluacion
+      total_bancos: total_bancos
     }
   end
 

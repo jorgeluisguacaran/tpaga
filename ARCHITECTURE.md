@@ -46,7 +46,6 @@ class Banco < ApplicationRecord
   # Responsabilidades:
   # - Validaciones de datos
   # - Cálculos geográficos (fórmula de Haversine)
-  # - Scopes para consultas comunes
   # - Métodos de instancia para operaciones específicas
 end
 ```
@@ -54,7 +53,7 @@ end
 **Características:**
 - **Validaciones robustas**: Coordenadas geográficas, longitudes de texto, rangos numéricos
 - **Cálculos geográficos**: Implementación de la fórmula de Haversine para distancias precisas
-- **Scopes optimizados**: Consultas predefinidas para casos de uso comunes
+- **Métodos de instancia**: Funcionalidad para calcular distancias y verificar proximidad
 - **Métodos de clase**: Funcionalidad para encontrar el banco más cercano
 
 ### 2. **Controlador API**
@@ -126,7 +125,6 @@ CREATE TABLE bancos (
   direccion VARCHAR(200) NOT NULL,
   latitud DECIMAL(10,8) NOT NULL,
   longitud DECIMAL(11,8) NOT NULL,
-  evaluacion DECIMAL(3,2) DEFAULT 0.0,
   created_at TIMESTAMP,
   updated_at TIMESTAMP
 );
@@ -177,7 +175,7 @@ end
 ## 🧪 Testing Strategy
 
 ### Cobertura de Tests
-- **Modelo**: Validaciones, scopes, métodos de instancia y clase
+- **Modelo**: Validaciones, métodos de instancia y clase
 - **Controlador**: Endpoints, respuestas, manejo de errores
 - **Servicio**: Lógica de negocio, notificaciones, estadísticas
 - **Factories**: Datos de prueba realistas con Faker

@@ -15,33 +15,6 @@ RSpec.describe Banco, type: :model do
 
     it { should validate_presence_of(:longitud) }
     it { should validate_numericality_of(:longitud).is_greater_than_or_equal_to(-180).is_less_than_or_equal_to(180) }
-
-    it { should validate_numericality_of(:evaluacion).is_greater_than_or_equal_to(0).is_less_than_or_equal_to(5).allow_nil }
-  end
-
-  describe 'scopes' do
-    let!(:banco_alto) { create(:banco_alta_evaluacion, evaluacion: 4.8) }
-    let!(:banco_medio) { create(:banco, evaluacion: 3.5) }
-    let!(:banco_bajo) { create(:banco_baja_evaluacion, evaluacion: 2.0) }
-
-    describe '.ordenados_por_evaluacion' do
-      it 'ordena los bancos por evaluación descendente' do
-        resultado = Banco.ordenados_por_evaluacion
-        expect(resultado.first.evaluacion).to be >= resultado.last.evaluacion
-      end
-    end
-
-    describe '.con_evaluacion_minima' do
-      it 'filtra bancos con evaluación mínima de 4.0' do
-        expect(Banco.con_evaluacion_minima(4.0)).to include(banco_alto)
-        expect(Banco.con_evaluacion_minima(4.0)).not_to include(banco_medio, banco_bajo)
-      end
-
-      it 'usa 3.0 como valor por defecto' do
-        expect(Banco.con_evaluacion_minima).to include(banco_alto, banco_medio)
-        expect(Banco.con_evaluacion_minima).not_to include(banco_bajo)
-      end
-    end
   end
 
   describe '#distancia_a' do
@@ -100,17 +73,23 @@ RSpec.describe Banco, type: :model do
     end
 
     context 'cuando no hay bancos' do
+      before { Banco.destroy_all }
+
       it 'retorna nil' do
-        Banco.destroy_all
         resultado = Banco.mas_cercano_a(4.7110, -74.0721)
         expect(resultado).to be_nil
       end
     end
 
     context 'con coordenadas inválidas' do
-      it 'retorna nil' do
-        expect(Banco.mas_cercano_a(nil, -74.0721)).to be_nil
-        expect(Banco.mas_cercano_a(4.7110, nil)).to be_nil
+      it 'retorna nil para latitud nil' do
+        resultado = Banco.mas_cercano_a(nil, -74.0721)
+        expect(resultado).to be_nil
+      end
+
+      it 'retorna nil para longitud nil' do
+        resultado = Banco.mas_cercano_a(4.7110, nil)
+        expect(resultado).to be_nil
       end
     end
   end
@@ -118,19 +97,24 @@ RSpec.describe Banco, type: :model do
   describe '#dentro_del_radio?' do
     let(:banco) { create(:banco_bogota) }
 
-    it 'retorna true para puntos dentro del radio' do
-      # Punto muy cercano
+    it 'retorna true cuando está dentro del radio' do
+      # Punto muy cercano a Bogotá
       expect(banco.dentro_del_radio?(4.7110, -74.0721, 1.0)).to be true
     end
 
-    it 'retorna false para puntos fuera del radio' do
-      # Punto lejano
+    it 'retorna false cuando está fuera del radio' do
+      # Punto lejano (Medellín)
       expect(banco.dentro_del_radio?(6.2442, -75.5812, 1.0)).to be false
     end
 
     it 'usa 10km como radio por defecto' do
-      # Punto a 5km (aproximadamente)
+      # Punto a 5km de Bogotá
       expect(banco.dentro_del_radio?(4.7560, -74.0721)).to be true
+    end
+
+    it 'retorna false para coordenadas inválidas' do
+      expect(banco.dentro_del_radio?(nil, -74.0721)).to be false
+      expect(banco.dentro_del_radio?(4.7110, nil)).to be false
     end
   end
 end

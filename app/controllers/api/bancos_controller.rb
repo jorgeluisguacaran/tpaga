@@ -33,7 +33,6 @@ class Api::BancosController < ApplicationController
   #       "direccion": "Calle 72 # 10-07, Bogotá",
   #       "latitud": 4.711,
   #       "longitud": -74.0721,
-  #       "evaluacion": 4.5,
   #       "created_at": "2025-08-24T01:46:14.460Z",
   #       "updated_at": "2025-08-24T01:46:14.460Z"
   #     }
@@ -53,7 +52,6 @@ class Api::BancosController < ApplicationController
         direccion: @banco.direccion,
         latitud: @banco.latitud.to_f,
         longitud: @banco.longitud.to_f,
-        evaluacion: @banco.evaluacion&.to_f,
         created_at: @banco.created_at,
         updated_at: @banco.updated_at
       }
@@ -74,7 +72,6 @@ class Api::BancosController < ApplicationController
   # @option banco [String] :direccion Dirección del banco (5-200 caracteres)
   # @option banco [Float] :latitud Latitud (-90 a 90)
   # @option banco [Float] :longitud Longitud (-180 a 180)
-  # @option banco [Float] :evaluacion Evaluación del banco (0-5, opcional)
   # @return [JSON] Banco creado o errores de validación
   #
   # @example Request
@@ -85,8 +82,7 @@ class Api::BancosController < ApplicationController
   #       "nombre": "Banco de Bogotá",
   #       "direccion": "Calle 72 # 10-07, Bogotá",
   #       "latitud": 4.7110,
-  #       "longitud": -74.0721,
-  #       "evaluacion": 4.5
+  #       "longitud": -74.0721
   #     }
   #   }
   #
@@ -100,7 +96,6 @@ class Api::BancosController < ApplicationController
   #       "direccion": "Calle 72 # 10-07, Bogotá",
   #       "latitud": 4.711,
   #       "longitud": -74.0721,
-  #       "evaluacion": 4.5,
   #       "created_at": "2025-08-24T01:46:14.460Z",
   #       "updated_at": "2025-08-24T01:46:14.460Z"
   #     }
@@ -125,7 +120,6 @@ class Api::BancosController < ApplicationController
           direccion: @banco.direccion,
           latitud: @banco.latitud.to_f,
           longitud: @banco.longitud.to_f,
-          evaluacion: @banco.evaluacion&.to_f,
           created_at: @banco.created_at,
           updated_at: @banco.updated_at
         }
@@ -162,8 +156,7 @@ class Api::BancosController < ApplicationController
   #         "nombre": "Banco de Bogotá",
   #         "direccion": "Calle 72 # 10-07, Bogotá",
   #         "latitud": "4.711",
-  #         "longitud": "-74.0721",
-  #         "evaluacion": "4.5"
+  #         "longitud": "-74.0721"
   #       },
   #       "distancia_km": 0.0,
   #       "supera_limite": false,
@@ -240,8 +233,7 @@ class Api::BancosController < ApplicationController
             nombre: resultado[:banco].nombre,
             direccion: resultado[:banco].direccion,
             latitud: resultado[:banco].latitud,
-            longitud: resultado[:banco].longitud,
-            evaluacion: resultado[:banco].evaluacion
+            longitud: resultado[:banco].longitud
           },
           distancia_km: resultado[:distancia_km],
           supera_limite: resultado[:supera_limite],
@@ -276,6 +268,6 @@ class Api::BancosController < ApplicationController
   #
   # @return [ActionController::Parameters] Parámetros permitidos
   def banco_params
-    params.require(:banco).permit(:nombre, :direccion, :latitud, :longitud, :evaluacion)
+    params.require(:banco).permit(:nombre, :direccion, :latitud, :longitud)
   end
 end

@@ -1,93 +1,89 @@
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
+# Seeds para la aplicación Bancos API
+#
+# Este archivo crea datos iniciales de bancos para pruebas y demostración.
+# Los bancos se crean con coordenadas reales de ciudades colombianas.
 
-puts "Creando bancos de prueba..."
+puts "Creando bancos de ejemplo..."
 
-# Bancos en Bogotá
+# Banco en Bogotá
 Banco.create!(
-  nombre: "Banco de Bogotá - Centro",
+  nombre: "Banco de Bogotá",
   direccion: "Calle 72 # 10-07, Bogotá",
   latitud: 4.7110,
-  longitud: -74.0721,
-  evaluacion: 4.5
+  longitud: -74.0721
 )
 
+# Banco en Medellín
 Banco.create!(
-  nombre: "Banco de Bogotá - Chapinero",
-  direccion: "Carrera 7 # 26-20, Bogotá",
-  latitud: 4.6682,
-  longitud: -74.0537,
-  evaluacion: 4.2
-)
-
-Banco.create!(
-  nombre: "Banco de Bogotá - Usaquén",
-  direccion: "Calle 119 # 7-14, Bogotá",
-  latitud: 4.6975,
-  longitud: -74.0337,
-  evaluacion: 4.0
-)
-
-# Bancos en Medellín
-Banco.create!(
-  nombre: "Banco de Medellín - Centro",
+  nombre: "Banco de Medellín",
   direccion: "Carrera 64C # 78-580, Medellín",
   latitud: 6.2442,
-  longitud: -75.5812,
-  evaluacion: 4.3
+  longitud: -75.5812
 )
 
+# Banco en Cali
 Banco.create!(
-  nombre: "Banco de Medellín - El Poblado",
-  direccion: "Carrera 43A # 6-15, Medellín",
-  latitud: 6.2088,
-  longitud: -75.5677,
-  evaluacion: 4.7
-)
-
-# Bancos en Cali
-Banco.create!(
-  nombre: "Banco de Cali - Centro",
-  direccion: "Calle 9 # 37-00, Cali",
+  nombre: "Banco de Cali",
+  direccion: "Calle 15 # 30-25, Cali",
   latitud: 3.4516,
-  longitud: -76.5320,
-  evaluacion: 4.1
+  longitud: -76.5320
 )
 
+# Banco en Barranquilla
 Banco.create!(
-  nombre: "Banco de Cali - Granada",
-  direccion: "Carrera 66 # 10-15, Cali",
-  latitud: 3.4280,
-  longitud: -76.5432,
-  evaluacion: 4.4
-)
-
-# Bancos en Barranquilla
-Banco.create!(
-  nombre: "Banco de Barranquilla - Centro",
-  direccion: "Calle 44 # 44-66, Barranquilla",
+  nombre: "Banco de Barranquilla",
+  direccion: "Calle 45 # 54-123, Barranquilla",
   latitud: 10.9685,
-  longitud: -74.7813,
-  evaluacion: 3.9
+  longitud: -74.7813
 )
 
-# Bancos en Cartagena
+# Banco en Cartagena
 Banco.create!(
-  nombre: "Banco de Cartagena - Centro Histórico",
-  direccion: "Calle de la Media Luna # 10-89, Cartagena",
+  nombre: "Banco de Cartagena",
+  direccion: "Calle de la Media Luna # 10-20, Cartagena",
   latitud: 10.3932,
-  longitud: -75.4792,
-  evaluacion: 4.6
+  longitud: -75.4792
 )
 
-# Bancos en Bucaramanga
+# Banco en Bucaramanga
 Banco.create!(
-  nombre: "Banco de Bucaramanga - Cabecera",
-  direccion: "Calle 45 # 26-50, Bucaramanga",
+  nombre: "Banco de Bucaramanga",
+  direccion: "Calle 35 # 20-15, Bucaramanga",
   latitud: 7.1253,
-  longitud: -73.1367,
-  evaluacion: 4.0
+  longitud: -73.1367
+)
+
+# Banco en Pereira
+Banco.create!(
+  nombre: "Banco de Pereira",
+  direccion: "Carrera 8 # 23-45, Pereira",
+  latitud: 4.8143,
+  longitud: -75.6946
+)
+
+# Banco en Manizales
+Banco.create!(
+  nombre: "Banco de Manizales",
+  direccion: "Carrera 22 # 33-12, Manizales",
+  latitud: 5.0703,
+  longitud: -75.5138
+)
+
+# Banco en Ibagué
+Banco.create!(
+  nombre: "Banco de Ibagué",
+  direccion: "Calle 15 # 2-45, Ibagué",
+  latitud: 4.4389,
+  longitud: -75.2322
+)
+
+# Banco en Villavicencio
+Banco.create!(
+  nombre: "Banco de Villavicencio",
+  direccion: "Carrera 40 # 25-67, Villavicencio",
+  latitud: 4.1420,
+  longitud: -73.6266
 )
 
 puts "¡Bancos creados exitosamente!"
-puts "Total de bancos: #{Banco.count}"
+puts "Total de bancos en la base de datos: #{Banco.count}"

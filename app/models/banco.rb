@@ -6,15 +6,13 @@
 # - Almacenar información básica del banco (nombre, dirección, coordenadas)
 # - Calcular distancias geográficas usando la fórmula de Haversine
 # - Encontrar el banco más cercano a un punto específico
-# - Gestionar evaluaciones y filtros por calidad
 #
 # @example Crear un nuevo banco
 #   banco = Banco.create!(
 #     nombre: "Banco de Bogotá",
 #     direccion: "Calle 72 # 10-07, Bogotá",
 #     latitud: 4.7110,
-#     longitud: -74.0721,
-#     evaluacion: 4.5
+#     longitud: -74.0721
 #   )
 #
 # @example Encontrar el banco más cercano
@@ -37,22 +35,6 @@ class Banco < ApplicationRecord
 
   # Validación: La longitud es obligatoria y debe estar entre -180 y 180 grados
   validates :longitud, presence: true, numericality: { greater_than_or_equal_to: -180, less_than_or_equal_to: 180 }
-
-  # Validación: La evaluación es opcional pero debe estar entre 0 y 5 si se proporciona
-  validates :evaluacion, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 5 }, allow_nil: true
-
-  # ============================================================================
-  # SCOPES
-  # ============================================================================
-
-  # Scope: Ordena los bancos por evaluación de mayor a menor
-  # @return [ActiveRecord::Relation] Bancos ordenados por evaluación descendente
-  scope :ordenados_por_evaluacion, -> { order(evaluacion: :desc) }
-
-  # Scope: Filtra bancos con evaluación mínima especificada
-  # @param minima [Float] Evaluación mínima requerida (por defecto 3.0)
-  # @return [ActiveRecord::Relation] Bancos con evaluación >= minima
-  scope :con_evaluacion_minima, ->(minima = 3.0) { where('evaluacion >= ?', minima) }
 
   # ============================================================================
   # MÉTODOS DE INSTANCIA

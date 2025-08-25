@@ -19,8 +19,7 @@ class Api::DocumentacionController < ApplicationController
                 nombre: "string (requerido, 2-100 caracteres)",
                 direccion: "string (requerido, 5-200 caracteres)",
                 latitud: "decimal (requerido, -90 a 90)",
-                longitud: "decimal (requerido, -180 a 180)",
-                evaluacion: "decimal (opcional, 0 a 5)"
+                longitud: "decimal (requerido, -180 a 180)"
               }
             },
             ejemplo: {
@@ -28,8 +27,7 @@ class Api::DocumentacionController < ApplicationController
                 nombre: "Banco de Bogotá",
                 direccion: "Calle 123 # 45-67, Bogotá",
                 latitud: 4.7110,
-                longitud: -74.0721,
-                evaluacion: 4.5
+                longitud: -74.0721
               }
             }
           },
@@ -85,14 +83,9 @@ class Api::DocumentacionController < ApplicationController
   # GET /api/documentacion/estadisticas
   def estadisticas
     total_bancos = Banco.count
-    promedio_evaluacion = Banco.average(:evaluacion)&.round(2) || 0.0
-    bancos_alta_evaluacion = Banco.where('evaluacion >= ?', 4.0).count
 
     stats = {
-      total_bancos: total_bancos,
-      promedio_evaluacion: promedio_evaluacion,
-      bancos_alta_evaluacion: bancos_alta_evaluacion,
-      porcentaje_alta_evaluacion: total_bancos > 0 ? ((bancos_alta_evaluacion.to_f / total_bancos) * 100).round(2) : 0.0
+      total_bancos: total_bancos
     }
 
     render json: {

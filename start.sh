@@ -29,36 +29,42 @@ if [ ! -d lib ] && [ ! -d app ] && [ ! -d tmp ]; then
                 --skip-turbo-rails-hotwire-stimulus \
                 --skip-turbo-rails-hotwire-stimulus-hotwire \
                 --skip-turbo-rails-hotwire-stimulus-hotwire-stimulus
-fi
 
-echo "El comando terminó con status $?"
+  echo "El comando terminó con status $?. Aplicación creada en my_app exitosamente..."
 
-if [ $? -eq 0 ]; then
-  echo 'Rails application created successfully'
-  mv my_app/{.,}* ./
   if [ $? -eq 0 ]; then
-    echo 'Files moved to parent directory successfully'
-    # cd ..
-    # rm -rf my_app
+    echo 'Rails application created successfully'
+    if [ -d my_app ]; then
+      mv my_app/{.,}* ./
+      if [ $? -eq 0 ]; then
+        echo 'Files moved to parent directory successfully'
+        # cd ..
+        # rm -rf my_app
+      else
+        echo 'Error moving files to parent directory'
+        exit 1
+      fi
+    else
+      echo 'my_app not found. Error moving files to parent directory'
+      # exit 1
+    fi
   else
-    echo 'Error moving files to parent directory'
+    echo 'Error creating Rails application'
     exit 1
   fi
-else
-  echo 'Error creating Rails application'
-  exit 1
-fi
 
-if [ -f config/initializers/assets.rb ]; then
-  echo 'Removing assets.rb initializer...
-  En Rails 8, el sistema de assets ha cambiado y la configuración config.assets ya no está disponible
-  por defecto,ya que Rails 8 usa import maps y otras alternativas modernas en lugar de Sprockets.'
-  echo 'https://guides.rubyonrails.org/v8.0/upgrading_ruby_on_rails.html#config-assets'
-  mv config/initializers/assets.rb config/initializers/assets.rb.old
-fi
+  if [ -f config/initializers/assets.rb ]; then
+    echo 'Removing assets.rb initializer...
+    En Rails 8, el sistema de assets ha cambiado y la configuración config.assets ya no está disponible
+    por defecto,ya que Rails 8 usa import maps y otras alternativas modernas en lugar de Sprockets.'
+    echo 'https://guides.rubyonrails.org/v8.0/upgrading_ruby_on_rails.html#config-assets'
+    mv config/initializers/assets.rb config/initializers/assets.rb.old
+  fi
 
-echo "Copying .initialize_env/Gemfile to Gemfile"
-cp .initialize_env/Gemfile Gemfile
+  echo "Copying .initialize_env/Gemfile to Gemfile"
+  cp .initialize_env/Gemfile Gemfile
+
+fi
 
 echo 'Checking ruby dependencies...'
 bundle check || bundle install  # && bundle binstubs bundler
