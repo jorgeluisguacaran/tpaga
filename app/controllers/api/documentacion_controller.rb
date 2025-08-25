@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+# Controller para la documentación de la API
 class Api::DocumentacionController < ApplicationController
   # GET /api/documentacion
   def index

@@ -1,63 +1,167 @@
+# frozen_string_literal: true
+
+# Modelo para la gestión de bancos
+#
+# Este modelo representa una entidad Banco con funcionalidades para:
+# - Almacenar información básica del banco (nombre, dirección, coordenadas)
+# - Calcular distancias geográficas usando la fórmula de Haversine
+# - Encontrar el banco más cercano a un punto específico
+# - Gestionar evaluaciones y filtros por calidad
+#
+# @example Crear un nuevo banco
+#   banco = Banco.create!(
+#     nombre: "Banco de Bogotá",
+#     direccion: "Calle 72 # 10-07, Bogotá",
+#     latitud: 4.7110,
+#     longitud: -74.0721,
+#     evaluacion: 4.5
+#   )
+#
+# @example Encontrar el banco más cercano
+#   resultado = Banco.mas_cercano_a(4.7110, -74.0721, 10.0)
+#   banco_cercano = resultado[:banco]
+#   distancia = resultado[:distancia_km]
 class Banco < ApplicationRecord
-  # Validaciones
+  # ============================================================================
+  # VALIDACIONES
+  # ============================================================================
+
+  # Validación: El nombre es obligatorio y debe tener entre 2 y 100 caracteres
   validates :nombre, presence: true, length: { minimum: 2, maximum: 100 }
+
+  # Validación: La dirección es obligatoria y debe tener entre 5 y 200 caracteres
   validates :direccion, presence: true, length: { minimum: 5, maximum: 200 }
+
+  # Validación: La latitud es obligatoria y debe estar entre -90 y 90 grados
   validates :latitud, presence: true, numericality: { greater_than_or_equal_to: -90, less_than_or_equal_to: 90 }
+
+  # Validación: La longitud es obligatoria y debe estar entre -180 y 180 grados
   validates :longitud, presence: true, numericality: { greater_than_or_equal_to: -180, less_than_or_equal_to: 180 }
+
+  # Validación: La evaluación es opcional pero debe estar entre 0 y 5 si se proporciona
   validates :evaluacion, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 5 }, allow_nil: true
 
-  # Scopes
+  # ============================================================================
+  # SCOPES
+  # ============================================================================
+
+  # Scope: Ordena los bancos por evaluación de mayor a menor
+  # @return [ActiveRecord::Relation] Bancos ordenados por evaluación descendente
   scope :ordenados_por_evaluacion, -> { order(evaluacion: :desc) }
+
+  # Scope: Filtra bancos con evaluación mínima especificada
+  # @param minima [Float] Evaluación mínima requerida (por defecto 3.0)
+  # @return [ActiveRecord::Relation] Bancos con evaluación >= minima
   scope :con_evaluacion_minima, ->(minima = 3.0) { where('evaluacion >= ?', minima) }
 
-  # Método para calcular distancia a un punto dado (en kilómetros)
+  # ============================================================================
+  # MÉTODOS DE INSTANCIA
+  # ============================================================================
+
+  # Calcula la distancia desde este banco a un punto geográfico específico
+  #
+  # Utiliza la fórmula de Haversine para calcular la distancia entre dos puntos
+  # en la superficie de la Tierra, considerando la curvatura del planeta.
+  #
+  # @param lat [Float] Latitud del punto de destino
+  # @param lng [Float] Longitud del punto de destino
+  # @return [Float, nil] Distancia en kilómetros, o nil si las coordenadas son inválidas
+  #
+  # @example Calcular distancia a Bogotá
+  #   banco = Banco.find(1)
+  #   distancia = banco.distancia_a(4.7110, -74.0721)
+  #   puts "Distancia: #{distancia} km"
   def distancia_a(lat, lng)
     return nil unless lat.present? && lng.present?
 
-    # Usando la fórmula de Haversine para calcular distancia entre dos puntos geográficos
-    rad_per_deg = Math::PI / 180
-    earth_radius_km = 6371
+    # Constantes para el cálculo de Haversine
+    rad_per_deg = Math::PI / 180  # Conversión de grados a radianes
+    earth_radius_km = 6371        # Radio de la Tierra en kilómetros
 
+    # Convertir coordenadas a radianes
     lat1_rad = latitud * rad_per_deg
     lat2_rad = lat * rad_per_deg
     delta_lat_rad = (lat - latitud) * rad_per_deg
     delta_lng_rad = (lng - longitud) * rad_per_deg
 
+    # Fórmula de Haversine
+    # a = sin²(Δφ/2) + cos(φ1) * cos(φ2) * sin²(Δλ/2)
     a = Math.sin(delta_lat_rad / 2) * Math.sin(delta_lat_rad / 2) +
         Math.cos(lat1_rad) * Math.cos(lat2_rad) *
         Math.sin(delta_lng_rad / 2) * Math.sin(delta_lng_rad / 2)
 
+    # c = 2 * atan2(√a, √(1-a))
     c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 
+    # Distancia = R * c (donde R es el radio de la Tierra)
     (earth_radius_km * c).round(2)
   end
 
-  # Método de clase para encontrar el banco más cercano
+  # Verifica si este banco está dentro del radio especificado desde un punto
+  #
+  # @param lat [Float] Latitud del punto de referencia
+  # @param lng [Float] Longitud del punto de referencia
+  # @param radio_km [Float] Radio en kilómetros (por defecto 10.0)
+  # @return [Boolean] true si el banco está dentro del radio, false en caso contrario
+  #
+  # @example Verificar si está dentro de 5km
+  #   banco = Banco.find(1)
+  #   dentro = banco.dentro_del_radio?(4.7110, -74.0721, 5.0)
+  #   puts "¿Está dentro del radio? #{dentro}"
+  def dentro_del_radio?(lat, lng, radio_km = 10)
+    distancia = distancia_a(lat, lng)
+    distancia.present? && distancia <= radio_km
+  end
+
+  # ============================================================================
+  # MÉTODOS DE CLASE
+  # ============================================================================
+
+  # Encuentra el banco más cercano a un punto geográfico específico
+  #
+  # Este método calcula la distancia desde el punto especificado a todos los bancos
+  # en la base de datos y retorna el más cercano. También notifica si la distancia
+  # supera el límite configurado.
+  #
+  # @param lat [Float] Latitud del punto de búsqueda
+  # @param lng [Float] Longitud del punto de búsqueda
+  # @param limite_km [Float] Límite de distancia en kilómetros (por defecto 10.0)
+  # @return [Hash, nil] Hash con información del banco más cercano o nil si no hay bancos
+  #
+  # @option return [Banco] :banco El banco más cercano
+  # @option return [Float] :distancia_km Distancia en kilómetros
+  # @option return [Boolean] :supera_limite Indica si supera el límite configurado
+  # @option return [Float] :limite_km El límite utilizado en el cálculo
+  #
+  # @example Encontrar banco más cercano a Bogotá
+  #   resultado = Banco.mas_cercano_a(4.7110, -74.0721, 10.0)
+  #   if resultado
+  #     puts "Banco más cercano: #{resultado[:banco].nombre}"
+  #     puts "Distancia: #{resultado[:distancia_km]} km"
+  #     puts "¿Supera límite? #{resultado[:supera_limite]}"
+  #   end
   def self.mas_cercano_a(lat, lng, limite_km = 10)
     return nil unless lat.present? && lng.present?
 
+    # Obtener todos los bancos de la base de datos
     bancos = all.to_a
     return nil if bancos.empty?
 
+    # Encontrar el banco con la distancia mínima
     banco_mas_cercano = bancos.min_by { |banco| banco.distancia_a(lat, lng) }
     distancia = banco_mas_cercano.distancia_a(lat, lng)
 
-    # Notificar si la distancia supera el límite
+    # Notificar si la distancia supera el límite configurado
     if distancia > limite_km
       Rails.logger.warn "Banco más cercano (#{banco_mas_cercano.nombre}) está a #{distancia}km del punto (#{lat}, #{lng}) - Supera el límite de #{limite_km}km"
     end
 
+    # Retornar hash con toda la información relevante
     {
       banco: banco_mas_cercano,
       distancia_km: distancia,
       supera_limite: distancia > limite_km,
       limite_km: limite_km
     }
-  end
-
-  # Método para verificar si está dentro del radio especificado
-  def dentro_del_radio?(lat, lng, radio_km = 10)
-    distancia = distancia_a(lat, lng)
-    distancia.present? && distancia <= radio_km
   end
 end
