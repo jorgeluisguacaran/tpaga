@@ -35,10 +35,10 @@ RSpec.describe "Api::Bancos", type: :request do
 
       it "retorna el banco creado" do
         post "/api/bancos", params: valid_attributes
-        
+
         expect(response).to have_http_status(:created)
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response["success"]).to be true
         expect(json_response["message"]).to eq("Banco creado exitosamente")
         expect(json_response["data"]["nombre"]).to eq("Banco de Prueba")
@@ -57,10 +57,10 @@ RSpec.describe "Api::Bancos", type: :request do
 
       it "retorna errores de validación" do
         post "/api/bancos", params: invalid_attributes
-        
+
         expect(response).to have_http_status(:unprocessable_entity)
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response["success"]).to be false
         expect(json_response["error"]).to eq("Error al crear el banco")
         expect(json_response["details"]).to include("Nombre no puede estar en blanco")
@@ -76,10 +76,10 @@ RSpec.describe "Api::Bancos", type: :request do
     context "cuando el banco existe" do
       it "retorna el banco" do
         get "/api/bancos/#{banco.id}"
-        
+
         expect(response).to have_http_status(:ok)
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response["success"]).to be true
         expect(json_response["data"]["id"]).to eq(banco.id)
         expect(json_response["data"]["nombre"]).to eq(banco.nombre)
@@ -93,10 +93,10 @@ RSpec.describe "Api::Bancos", type: :request do
     context "cuando el banco no existe" do
       it "retorna error 404" do
         get "/api/bancos/999999"
-        
+
         expect(response).to have_http_status(:not_found)
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response["success"]).to be false
         expect(json_response["error"]).to eq("Banco no encontrado")
       end
@@ -110,10 +110,10 @@ RSpec.describe "Api::Bancos", type: :request do
     context "con coordenadas válidas" do
       it "encuentra el banco más cercano" do
         get "/api/bancos/cercano", params: { latitud: 4.7110, longitud: -74.0721 }
-        
+
         expect(response).to have_http_status(:ok)
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response["success"]).to be true
         expect(json_response["data"]["banco"]["nombre"]).to eq("Banco Bogotá")
         expect(json_response["data"]["distancia_km"]).to be_within(0.1).of(0.0)
@@ -123,10 +123,10 @@ RSpec.describe "Api::Bancos", type: :request do
 
       it "notifica cuando supera el límite de distancia" do
         get "/api/bancos/cercano", params: { latitud: 10.0, longitud: -80.0, limite_km: 5.0 }
-        
+
         expect(response).to have_http_status(:ok)
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response["success"]).to be true
         expect(json_response["data"]["supera_limite"]).to be true
         expect(json_response["data"]["limite_km"]).to eq(5.0)
@@ -136,20 +136,20 @@ RSpec.describe "Api::Bancos", type: :request do
     context "con coordenadas inválidas" do
       it "retorna error cuando faltan parámetros" do
         get "/api/bancos/cercano", params: { latitud: 4.7110 }
-        
+
         expect(response).to have_http_status(:bad_request)
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response["success"]).to be false
         expect(json_response["error"]).to eq("Los parámetros latitud y longitud son requeridos")
       end
 
       it "retorna error cuando las coordenadas están fuera de rango" do
         get "/api/bancos/cercano", params: { latitud: 100.0, longitud: -74.0721 }
-        
+
         expect(response).to have_http_status(:bad_request)
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response["success"]).to be false
         expect(json_response["error"]).to eq("Coordenadas fuera de rango válido (latitud: -90 a 90, longitud: -180 a 180)")
       end
@@ -158,12 +158,12 @@ RSpec.describe "Api::Bancos", type: :request do
     context "cuando no hay bancos" do
       it "retorna error 404" do
         Banco.destroy_all
-        
+
         get "/api/bancos/cercano", params: { latitud: 4.7110, longitud: -74.0721 }
-        
+
         expect(response).to have_http_status(:not_found)
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response["success"]).to be false
         expect(json_response["error"]).to eq("No hay bancos disponibles en la base de datos")
       end

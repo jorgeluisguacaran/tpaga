@@ -13,7 +13,7 @@ class Banco < ApplicationRecord
   # Método para calcular distancia a un punto dado (en kilómetros)
   def distancia_a(lat, lng)
     return nil unless lat.present? && lng.present?
-    
+
     # Usando la fórmula de Haversine para calcular distancia entre dos puntos geográficos
     rad_per_deg = Math::PI / 180
     earth_radius_km = 6371
@@ -26,27 +26,27 @@ class Banco < ApplicationRecord
     a = Math.sin(delta_lat_rad / 2) * Math.sin(delta_lat_rad / 2) +
         Math.cos(lat1_rad) * Math.cos(lat2_rad) *
         Math.sin(delta_lng_rad / 2) * Math.sin(delta_lng_rad / 2)
-    
+
     c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-    
+
     (earth_radius_km * c).round(2)
   end
 
   # Método de clase para encontrar el banco más cercano
   def self.mas_cercano_a(lat, lng, limite_km = 10)
     return nil unless lat.present? && lng.present?
-    
+
     bancos = all.to_a
     return nil if bancos.empty?
-    
+
     banco_mas_cercano = bancos.min_by { |banco| banco.distancia_a(lat, lng) }
     distancia = banco_mas_cercano.distancia_a(lat, lng)
-    
+
     # Notificar si la distancia supera el límite
     if distancia > limite_km
       Rails.logger.warn "Banco más cercano (#{banco_mas_cercano.nombre}) está a #{distancia}km del punto (#{lat}, #{lng}) - Supera el límite de #{limite_km}km"
     end
-    
+
     {
       banco: banco_mas_cercano,
       distancia_km: distancia,
