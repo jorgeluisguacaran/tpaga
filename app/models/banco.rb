@@ -50,7 +50,8 @@ class Banco < ApplicationRecord
     {
       banco: banco_mas_cercano,
       distancia_km: distancia,
-      supera_limite: distancia > limite_km
+      supera_limite: distancia > limite_km,
+      limite_km: limite_km
     }
   end
 

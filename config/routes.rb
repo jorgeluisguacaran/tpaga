@@ -12,7 +12,7 @@ Rails.application.routes.draw do
         get :cercano
       end
     end
-    
+
     # Documentación de la API
     get 'documentacion', to: 'documentacion#index'
     get 'documentacion/estadisticas', to: 'documentacion#estadisticas'

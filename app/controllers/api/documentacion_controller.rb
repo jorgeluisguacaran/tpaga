@@ -61,7 +61,7 @@ class Api::DocumentacionController < ApplicationController
         respuestas: {
           exito: {
             success: true,
-            data: { /* datos del recurso */ }
+            data: "datos del recurso"
           },
           error: {
             success: false,
@@ -82,8 +82,16 @@ class Api::DocumentacionController < ApplicationController
 
   # GET /api/documentacion/estadisticas
   def estadisticas
-    service = BancoService.new
-    stats = service.estadisticas
+    total_bancos = Banco.count
+    promedio_evaluacion = Banco.average(:evaluacion)&.round(2) || 0.0
+    bancos_alta_evaluacion = Banco.where('evaluacion >= ?', 4.0).count
+
+    stats = {
+      total_bancos: total_bancos,
+      promedio_evaluacion: promedio_evaluacion,
+      bancos_alta_evaluacion: bancos_alta_evaluacion,
+      porcentaje_alta_evaluacion: total_bancos > 0 ? ((bancos_alta_evaluacion.to_f / total_bancos) * 100).round(2) : 0.0
+    }
 
     render json: {
       success: true,

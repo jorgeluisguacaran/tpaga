@@ -9,9 +9,9 @@ class Api::BancosController < ApplicationController
         id: @banco.id,
         nombre: @banco.nombre,
         direccion: @banco.direccion,
-        latitud: @banco.latitud,
-        longitud: @banco.longitud,
-        evaluacion: @banco.evaluacion,
+        latitud: @banco.latitud.to_f,
+        longitud: @banco.longitud.to_f,
+        evaluacion: @banco.evaluacion&.to_f,
         created_at: @banco.created_at,
         updated_at: @banco.updated_at
       }
@@ -35,9 +35,9 @@ class Api::BancosController < ApplicationController
           id: @banco.id,
           nombre: @banco.nombre,
           direccion: @banco.direccion,
-          latitud: @banco.latitud,
-          longitud: @banco.longitud,
-          evaluacion: @banco.evaluacion,
+          latitud: @banco.latitud.to_f,
+          longitud: @banco.longitud.to_f,
+          evaluacion: @banco.evaluacion&.to_f,
           created_at: @banco.created_at,
           updated_at: @banco.updated_at
         }
@@ -52,7 +52,7 @@ class Api::BancosController < ApplicationController
   end
 
   # GET /api/bancos/cercano
-  def mas_cercano
+  def cercano
     lat = params[:latitud]&.to_f
     lng = params[:longitud]&.to_f
     limite_km = params[:limite_km]&.to_f || 10.0
@@ -104,6 +104,11 @@ class Api::BancosController < ApplicationController
 
   def set_banco
     @banco = Banco.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render json: {
+      success: false,
+      error: 'Banco no encontrado'
+    }, status: :not_found
   end
 
   def banco_params
