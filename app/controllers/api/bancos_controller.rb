@@ -47,15 +47,7 @@ module Api
     def show
       render json: {
         success: true,
-        data: {
-          id: @banco.id,
-          nombre: @banco.nombre,
-          direccion: @banco.direccion,
-          latitud: @banco.latitud.to_f,
-          longitud: @banco.longitud.to_f,
-          created_at: @banco.created_at,
-          updated_at: @banco.updated_at,
-        },
+        data: BancoSerializer.new(@banco).as_json,
       }
     rescue ActiveRecord::RecordNotFound
       render json: {
@@ -115,15 +107,7 @@ module Api
         render json: {
           success: true,
           message: 'Banco creado exitosamente',
-          data: {
-            id: @banco.id,
-            nombre: @banco.nombre,
-            direccion: @banco.direccion,
-            latitud: @banco.latitud.to_f,
-            longitud: @banco.longitud.to_f,
-            created_at: @banco.created_at,
-            updated_at: @banco.updated_at,
-          },
+          data: BancoSerializer.new(@banco).as_json,
         }, status: :created
       else
         render json: {
@@ -208,13 +192,7 @@ module Api
         render json: {
           success: true,
           data: {
-            banco: {
-              id: @resultado[:banco].id,
-              nombre: @resultado[:banco].nombre,
-              direccion: @resultado[:banco].direccion,
-              latitud: @resultado[:banco].latitud.to_f,
-              longitud: @resultado[:banco].longitud.to_f,
-            },
+            banco: @resultado[:banco],
             distancia_km: @resultado[:distancia_km],
             supera_limite: @resultado[:supera_limite],
             limite_km: @resultado[:limite_km],
@@ -248,7 +226,7 @@ module Api
     #
     # @return [ActionController::Parameters] Parámetros permitidos
     def banco_params
-      params.expect(banco: %i[nombre direccion latitud longitud])
+      params.require(:banco).permit(%i[nombre direccion latitud longitud])
     end
 
     # Valida los parámetros del método cercano

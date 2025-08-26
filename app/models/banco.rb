@@ -54,29 +54,10 @@ class Banco < ApplicationRecord
   #   distancia = banco.distancia_a(4.7110, -74.0721)
   #   puts "Distancia: #{distancia} km"
   def distancia_a(lat, lng)
-    return nil unless lat.present? && lng.present?
+    return nil unless coordenadas_validas_para_distancia?(lat, lng)
 
-    # Constantes para el cálculo de Haversine
-    rad_per_deg = Math::PI / 180  # Conversión de grados a radianes
-    earth_radius_km = 6371        # Radio de la Tierra en kilómetros
-
-    # Convertir coordenadas a radianes
-    lat1_rad = latitud * rad_per_deg
-    lat2_rad = lat * rad_per_deg
-    delta_lat_rad = (lat - latitud) * rad_per_deg
-    delta_lng_rad = (lng - longitud) * rad_per_deg
-
-    # Fórmula de Haversine
-    # a = sin²(Δφ/2) + cos(φ1) * cos(φ2) * sin²(Δλ/2)
-    a = Math.sin(delta_lat_rad / 2) * Math.sin(delta_lat_rad / 2) +
-        Math.cos(lat1_rad) * Math.cos(lat2_rad) *
-        Math.sin(delta_lng_rad / 2) * Math.sin(delta_lng_rad / 2)
-
-    # c = 2 * atan2(√a, √(1-a))
-    c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-
-    # Distancia = R * c (donde R es el radio de la Tierra)
-    (earth_radius_km * c).round(2)
+    coordenadas_rad = convertir_coordenadas_a_radianes(lat, lng)
+    calcular_distancia_haversine(coordenadas_rad)
   end
 
   # Verifica si este banco está dentro del radio especificado desde un punto
@@ -135,7 +116,9 @@ class Banco < ApplicationRecord
 
     # Notificar si la distancia supera el límite configurado
     if distancia > limite_km
-      Rails.logger.warn "Banco más cercano (#{banco_mas_cercano.nombre}) está a #{distancia}km del punto (#{lat}, #{lng}) - Supera el límite de #{limite_km}km"
+      mensaje = "Banco más cercano (#{banco_mas_cercano.nombre}) está a #{distancia}km " \
+                "del punto (#{lat}, #{lng}) - Supera el límite de #{limite_km}km"
+      Rails.logger.warn mensaje
     end
 
     # Retornar hash con toda la información relevante
@@ -143,7 +126,51 @@ class Banco < ApplicationRecord
       banco: banco_mas_cercano,
       distancia_km: distancia,
       supera_limite: distancia > limite_km,
-      limite_km: limite_km
+      limite_km: limite_km,
     }
+  end
+
+  # ============================================================================
+  # MÉTODOS PRIVADOS
+  # ============================================================================
+
+  private
+
+  # Valida que las coordenadas sean válidas para el cálculo de distancia
+  def coordenadas_validas_para_distancia?(lat, lng)
+    lat.present? && lng.present?
+  end
+
+  # Convierte coordenadas de grados a radianes
+  def convertir_coordenadas_a_radianes(lat, lng)
+    rad_per_deg = Math::PI / 180
+
+    {
+      lat1_rad: latitud * rad_per_deg,
+      lat2_rad: lat * rad_per_deg,
+      delta_lat_rad: (lat - latitud) * rad_per_deg,
+      delta_lng_rad: (lng - longitud) * rad_per_deg,
+    }
+  end
+
+  # Calcula la distancia usando la fórmula de Haversine
+  def calcular_distancia_haversine(coordenadas_rad)
+    earth_radius_km = 6371
+
+    # Fórmula de Haversine: a = sin²(Δφ/2) + cos(φ1) * cos(φ2) * sin²(Δλ/2)
+    a = calcular_haversine_a(coordenadas_rad)
+
+    # c = 2 * atan2(√a, √(1-a))
+    c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+
+    # Distancia = R * c (donde R es el radio de la Tierra)
+    (earth_radius_km * c).round(2)
+  end
+
+  # Calcula la parte 'a' de la fórmula de Haversine
+  def calcular_haversine_a(coordenadas_rad)
+    (Math.sin(coordenadas_rad[:delta_lat_rad] / 2) * Math.sin(coordenadas_rad[:delta_lat_rad] / 2)) +
+      (Math.cos(coordenadas_rad[:lat1_rad]) * Math.cos(coordenadas_rad[:lat2_rad]) *
+       Math.sin(coordenadas_rad[:delta_lng_rad] / 2) * Math.sin(coordenadas_rad[:delta_lng_rad] / 2))
   end
 end

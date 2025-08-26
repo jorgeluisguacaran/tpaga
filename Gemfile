@@ -73,3 +73,6 @@ gem 'psych', '~> 4.0.3'
 
 # Geocoding and distance calculations
 gem 'geocoder', '~> 1.8'
+
+# Serializers para JSON
+gem 'active_model_serializers', '~> 0.10'

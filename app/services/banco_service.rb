@@ -153,7 +153,7 @@ class BancoService
       banco: resultado[:banco],
       distancia_km: resultado[:distancia_km],
       supera_limite: resultado[:supera_limite],
-      limite_km: limite_km
+      limite_km: limite_km,
     }
   end
 
@@ -174,7 +174,7 @@ class BancoService
 
     # Retornar hash con todas las estadísticas
     {
-      total_bancos: total_bancos
+      total_bancos: total_bancos,
     }
   end
 
@@ -194,7 +194,7 @@ class BancoService
   # @return [Boolean] true si las coordenadas son válidas, false en caso contrario
   def coordenadas_validas?(lat, lng)
     lat.present? && lng.present? &&
-    lat.between?(-90, 90) && lng.between?(-180, 180)
+      lat.between?(-90, 90) && lng.between?(-180, 180)
   end
 
   # Notifica cuando la distancia al banco más cercano supera el límite configurado
@@ -212,7 +212,8 @@ class BancoService
   # @return [void]
   def notificar_distancia_excesiva(banco, distancia, lat, lng, limite)
     # Crear mensaje de alerta
-    mensaje = "ALERTA: Banco más cercano '#{banco.nombre}' está a #{distancia}km del punto (#{lat}, #{lng}) - Supera el límite de #{limite}km"
+    mensaje = "ALERTA: Banco más cercano '#{banco.nombre}' está a #{distancia}km " \
+              "del punto (#{lat}, #{lng}) - Supera el límite de #{limite}km"
 
     # Registrar alerta en el log de warnings
     Rails.logger.warn mensaje

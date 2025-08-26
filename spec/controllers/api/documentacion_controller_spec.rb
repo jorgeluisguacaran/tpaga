@@ -100,8 +100,12 @@ RSpec.describe Api::DocumentacionController, type: :controller do
   end
 
   describe 'GET #estadisticas' do
-    let!(:banco1) { create(:banco_bogota) }
-    let!(:banco2) { create(:banco_medellin) }
+    before do
+      # Limpiar bancos existentes y crear solo los necesarios para la prueba
+      Banco.destroy_all
+      @banco1 = create(:banco_bogota)
+      @banco2 = create(:banco_medellin)
+    end
 
     it 'retorna el estatus HTTP ok' do
       get :estadisticas, format: :json
