@@ -4,9 +4,10 @@ services:
       network: host
       target: development
       tags:
-        - tpaga:0.1
+        - tpaga_app:0.1
+      dockerfile: Dockerfile
     container_name: tpaga_app
-    # image: debian:latest
+    hostname: tpaga_app
     tty: true
     stdin_open: true
     environment:
@@ -27,9 +28,9 @@ services:
     container_name: tpaga_db
     image: postgres:latest
     volumes:
+      - postgresql_cache:/var/lib/postgresql/data
       - .initialize_env/.pg_custom_config/pg_hba.conf:/etc/postgresql/pg_hba.conf
       - .initialize_env/.pg_custom_config/postgresql.conf:/etc/postgresql/postgresql.conf
-      - postgresql_cache:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: TPaga.2025.*
       POSTGRES_USER: postgres
@@ -38,6 +39,7 @@ services:
     command: >
       postgres -c config_file=/etc/postgresql/postgresql.conf
                -c hba_file=/etc/postgresql/pg_hba.conf
+
 
 volumes:
   bundle_cache:
