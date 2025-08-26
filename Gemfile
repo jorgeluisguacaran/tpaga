@@ -13,8 +13,7 @@ gem "pg", "~> 1.1"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma"
 
-# Build JSON APIs with ease [https://github.com/rails/jbuilder]
-# gem "jbuilder"
+
 
 # Use Redis adapter to run Action Cable in production
 # gem "redis", "~> 4.0"
@@ -49,6 +48,15 @@ group :development, :test do
   gem 'factory_bot_rails', '~> 6.4'
   gem 'faker', '~> 3.2'
   gem 'shoulda-matchers', '~> 5.0'
+
+  # RuboCop gems for code quality
+  gem 'rubocop', '~> 1.50'
+  gem 'rubocop-rails', '~> 2.20'
+  gem 'rubocop-rspec', '~> 2.20'
+  gem 'rubocop-rspec_rails', '~> 2.20'
+  gem 'rubocop-factory_bot', '~> 2.20'
+  gem 'rubocop-capybara', '~> 2.20'
+  gem 'rubocop-performance', '~> 1.20'
 end
 
 group :development do

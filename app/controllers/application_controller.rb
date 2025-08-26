@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ApplicationController < ActionController::API
   # Manejo de errores de parsing JSON
   rescue_from ActionDispatch::Http::Parameters::ParseError do |exception|
@@ -5,7 +7,7 @@ class ApplicationController < ActionController::API
       success: false,
       error: 'JSON malformado',
       details: 'El cuerpo de la petición contiene JSON inválido. Verifique la sintaxis.',
-      message: exception.message
+      message: exception.message,
     }, status: :bad_request
   end
 
@@ -15,7 +17,7 @@ class ApplicationController < ActionController::API
       success: false,
       error: 'Parámetros faltantes',
       details: "El parámetro '#{exception.param}' es requerido",
-      message: exception.message
+      message: exception.message,
     }, status: :bad_request
   end
 
@@ -25,7 +27,7 @@ class ApplicationController < ActionController::API
       success: false,
       error: 'Error de validación',
       details: exception.record.errors.full_messages,
-      message: exception.message
+      message: exception.message,
     }, status: :unprocessable_entity
   end
 
@@ -35,7 +37,7 @@ class ApplicationController < ActionController::API
       success: false,
       error: 'Recurso no encontrado',
       details: 'El recurso solicitado no existe en la base de datos',
-      message: exception.message
+      message: exception.message,
     }, status: :not_found
   end
 end

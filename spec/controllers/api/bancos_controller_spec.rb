@@ -5,16 +5,16 @@ RSpec.describe Api::BancosController, type: :controller do
     let(:banco) { create(:banco_bogota) }
 
     context 'cuando el banco existe' do
-    
+
       it 'retorna el estatus HTTP ok' do
-        get :show, params: { id: banco.id }
+        get :show, params: { id: banco.id }, format: :json, format: :json
         expect(response).to have_http_status(:ok)
       end
-    
+
       it 'retorna el banco en formato JSON con los atributos correctos' do
-        get :show, params: { id: banco.id }
+        get :show, params: { id: banco.id }, format: :json, format: :json
         json_response = JSON.parse(response.body)
-    
+
         expect(json_response).to include(
           'success' => true,
           'data' => a_hash_including(
@@ -26,11 +26,11 @@ RSpec.describe Api::BancosController, type: :controller do
           )
         )
       end
-    
+
       it 'el JSON incluye las marcas de tiempo created_at y updated_at' do
-        get :show, params: { id: banco.id }
+        get :show, params: { id: banco.id }, format: :json
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response['data']).to include(
           'created_at' => be_present,
           'updated_at' => be_present
@@ -40,14 +40,14 @@ RSpec.describe Api::BancosController, type: :controller do
 
     context 'cuando el banco no existe' do
       it 'retorna el estatus HTTP de no encontrado' do
-        get :show, params: { id: 99999 }
+        get :show, params: { id: 99999 }, format: :json
         expect(response).to have_http_status(:not_found)
       end
-    
+
       it 'retorna un mensaje de error en formato JSON' do
-        get :show, params: { id: 99999 }
+        get :show, params: { id: 99999 }, format: :json
         json_response = JSON.parse(response.body)
-    
+
         expect(json_response).to include(
           'success' => false,
           'error' => 'Banco no encontrado'
@@ -71,19 +71,19 @@ RSpec.describe Api::BancosController, type: :controller do
     context 'con parámetros válidos' do
       it 'crea un nuevo banco' do
         expect {
-          post :create, params: valid_params
+          post :create, params: valid_params, format: :json
         }.to change(Banco, :count).by(1)
       end
 
       it 'responde con el estatus de HTTP creado' do
-        post :create, params: valid_params
+        post :create, params: valid_params, format: :json
         expect(response).to have_http_status(:created)
       end
 
       it 'responde con el JSON correcto incluyendo los datos del banco' do
-        post :create, params: valid_params
+        post :create, params: valid_params, format: :json
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response).to include(
           'success' => true,
           'message' => 'Banco creado exitosamente',
@@ -111,19 +111,19 @@ RSpec.describe Api::BancosController, type: :controller do
 
       it 'no crea el banco' do
         expect {
-          post :create, params: invalid_params
+          post :create, params: invalid_params, format: :json
         }.not_to change(Banco, :count)
       end
 
       it 'responde con el estatus HTTP de entidad no procesable' do
-        post :create, params: invalid_params
+        post :create, params: invalid_params, format: :json
         expect(response).to have_http_status(:unprocessable_entity)
       end
-      
+
       it 'retorna un JSON de error con los detalles de la validación' do
-        post :create, params: invalid_params
+        post :create, params: invalid_params, format: :json
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response).to include(
           'success' => false,
           'error' => 'Error al crear el banco',
@@ -139,12 +139,12 @@ RSpec.describe Api::BancosController, type: :controller do
 
     context 'con coordenadas válidas' do
       it 'retorna el estatus HTTP ok' do
-        get :cercano, params: { latitud: 4.7110, longitud: -74.0721 }
+        get :cercano, params: { latitud: 4.7110, longitud: -74.0721 }, format: :json
         expect(response).to have_http_status(:ok)
       end
 
       it 'retorna el JSON correcto del banco más cercano' do
-        get :cercano, params: { latitud: 4.7110, longitud: -74.0721 }
+        get :cercano, params: { latitud: 4.7110, longitud: -74.0721 }, format: :json
         json_response = JSON.parse(response.body)
 
         expect(json_response).to include(
@@ -158,9 +158,9 @@ RSpec.describe Api::BancosController, type: :controller do
       end
 
       it 'calcula la distancia correctamente' do
-        get :cercano, params: { latitud: 4.7110, longitud: -74.0721 }
+        get :cercano, params: { latitud: 4.7110, longitud: -74.0721 }, format: :json
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response['data']['distancia_km']).to be_within(0.1).of(0.0)
       end
 
@@ -181,12 +181,12 @@ RSpec.describe Api::BancosController, type: :controller do
       before { Banco.destroy_all }
 
       it 'retorna el estatus HTTP de no encontrado' do
-        get :cercano, params: { latitud: 4.7110, longitud: -74.0721 }
+        get :cercano, params: { latitud: 4.7110, longitud: -74.0721 }, format: :json
         expect(response).to have_http_status(:not_found)
       end
 
       it 'retorna un JSON de error con un mensaje descriptivo' do
-        get :cercano, params: { latitud: 4.7110, longitud: -74.0721 }
+        get :cercano, params: { latitud: 4.7110, longitud: -74.0721 }, format: :json
         json_response = JSON.parse(response.body)
 
         expect(json_response).to include(
@@ -205,7 +205,7 @@ RSpec.describe Api::BancosController, type: :controller do
       it 'retorna un JSON de error cuando falta latitud' do
         get :cercano, params: { longitud: -74.0721 }
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response).to include(
           'success' => false,
           'error' => 'Los parámetros latitud y longitud son requeridos'
@@ -220,7 +220,7 @@ RSpec.describe Api::BancosController, type: :controller do
       it 'retorna un JSON de error cuando falta longitud' do
         get :cercano, params: { latitud: 4.7110 }
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response).to include(
           'success' => false,
           'error' => 'Los parámetros latitud y longitud son requeridos'
@@ -237,7 +237,7 @@ RSpec.describe Api::BancosController, type: :controller do
       it 'retorna un JSON de error para latitud fuera de rango' do
         get :cercano, params: { latitud: 100, longitud: -74.0721 }
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response).to include(
           'success' => false,
           'error' => include('Coordenadas fuera de rango válido')
@@ -252,7 +252,7 @@ RSpec.describe Api::BancosController, type: :controller do
       it 'retorna un JSON de error para longitud fuera de rango' do
         get :cercano, params: { latitud: 4.7110, longitud: 200 }
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response).to include(
           'success' => false,
           'error' => include('Coordenadas fuera de rango válido')
